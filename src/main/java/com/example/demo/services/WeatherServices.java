@@ -16,11 +16,23 @@ public class WeatherServices {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private RedisService service;
+
     public WeatherResponse.MainData getWeather(String city){
-        String finalApi = uri.replace("API_KEY",API_KEY).replace("CITY",city);
-        System.out.println(city);
-        ResponseEntity<WeatherResponse> body = restTemplate.exchange(finalApi, HttpMethod.GET,null,WeatherResponse.class);
-        return body.getBody().main;
+        WeatherResponse response = service.getResponse("weather_of_" + city,WeatherResponse.class);
+        if(response != null){
+            return response.main;
+        }
+        else{
+            String finalApi = uri.replace("API_KEY",API_KEY).replace("CITY",city);
+            ResponseEntity<WeatherResponse> body = restTemplate.exchange(finalApi, HttpMethod.GET,null,WeatherResponse.class);
+            if(body.getBody() != null){
+                service.setResponse("weather_of_" + city,body.getBody(),300l);
+            }
+            return body.getBody().main;
+        }
+
     }
 
 }
