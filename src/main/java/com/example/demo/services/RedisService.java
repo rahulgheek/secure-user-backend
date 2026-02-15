@@ -19,6 +19,9 @@ public class RedisService {
     public <T> T getResponse(String key, Class<T> response){
         try {
             Object o = redisTemplate.opsForValue().get(key);
+            if (o == null) {
+                return null; // Return null to indicate "Cache Miss"
+            }
             return mapper.readValue(o.toString(),response);
         } catch (Exception e){
             System.out.println(e);
