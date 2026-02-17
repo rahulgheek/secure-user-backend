@@ -2,7 +2,7 @@ package com.example.demo.services;
 
 import com.example.demo.entity.CustomUserDetails;
 import com.example.demo.entity.UserBean;
-import com.example.demo.repo.UserRepositoryLayer;
+import com.example.demo.repo.JPARepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserRepositoryLayer repo;
+    private JPARepo repo;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

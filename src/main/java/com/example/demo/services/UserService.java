@@ -1,7 +1,7 @@
 package com.example.demo.services;
 
 import com.example.demo.entity.UserBean;
-import com.example.demo.repo.UserRepositoryLayer;
+import com.example.demo.repo.JPARepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -12,13 +12,13 @@ import java.util.List;
 
 @Service
 public class UserService {
-    private final UserRepositoryLayer repo;
+    @Autowired
+    private JPARepo re;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    UserService(UserRepositoryLayer repo,PasswordEncoder passwordEncoder){
+    UserService(PasswordEncoder passwordEncoder){
         this.passwordEncoder = passwordEncoder;
-        this.repo = repo;
     }
 
     public void registerUser(UserBean user){
@@ -34,7 +34,7 @@ public class UserService {
                 user.setRole("ROLE_USER");
             }
 
-            repo.addUser(user);
+            re.save(user);
         }catch (DuplicateKeyException e){
             throw new DuplicateKeyException("Email " + user.getEmail() + " already in use");
         }
@@ -52,27 +52,28 @@ public class UserService {
             user.setRole("ROLE_ADMIN");
         }
 
-        repo.addUser(user);
+        re.save(user);
     }
 
     public boolean deleteUser(int id){
-        if(!repo.userExists(id)) return false;
-        repo.deleteUser(id);
+        if(!re.existsById(id)) return false;
+        re.deleteById(id);
         return true;
     }
 
     public List<UserBean> displayAll(){
-        return repo.displayAll();
+        return re.findAll();
     }
 
     @Transactional
     public void updateNameAndAge(int id,String name,int age){
-        repo.updateName(id,name);
+        UserBean u = re.findById(id).get();
 
-        if(age < 0){
-            throw new RuntimeException("Invalid age -> Rollback");
-        }
-        repo.updateAge(id,age);
+        u.setName(name);
+        u.setAge(age);
+
+        re.save(u);
+
     }
 
 
